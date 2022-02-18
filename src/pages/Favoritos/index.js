@@ -1,51 +1,53 @@
-import './index.css'
-import { useEffect, useState} from 'react'
+// Packages
+import React, { useEffect, useState} from 'react'
 import { Link } from 'react-router-dom'
 import { toast } from 'react-toastify'
 
-function Favoritos() {
+// Styles
+import './index.css'
 
-    const [filmes, setFilmes] = useState([])
+function Favoritos() {
+    const [movies, setMovies] = useState([])
 
     useEffect(() => {
+    const myList = localStorage.getItem('filmes')
 
-    const minhaLista = localStorage.getItem('filmes')
-    setFilmes(JSON.parse(minhaLista) || [])
-
+    setMovies(JSON.parse(myList) || [])
     },[])
 
     function handleDelete(id){
-        let filtroFilme = filmes.filter( (item) => {
-            return ( item.id !== id )
-        })
+        const movieFilter = movies.filter((movie) => (movie.id !== id ))
 
-        setFilmes(filtroFilme)
-        localStorage.setItem('filmes', JSON.stringify(filtroFilme))
+        setMovies(movieFilter)
+
+        localStorage.setItem('filmes', JSON.stringify(movieFilter))
         toast.success('Filme excluido com sucesso!')
     }
 
+    const handleDeleteOnclick = (id) => () => handleDelete(id)
+
     return(
+        <div id='meus-filmes'>
+            <h1>Meus Filmes</h1>
 
-    <div id='meus-filmes'>
-        <h1>Meus Filmes</h1>
+            {movies.length ? (
+                <ul>
+                    {movies.map((movie) =>  (
+                            <li key={movie.id}>
+                                <span>{movie.nome}</span>
 
-        {filmes.length === 0 && <span>Você não possui nenhum filme salvo!</span>}
-
-        <ul>
-            {filmes.map( (item) => {
-                return(
-                <li key={item.id}>
-                    <span>{item.nome}</span>
-
-                     <div>
-                         <Link to={`/filmes/${item.id}`}>Ver detalhes</Link>
-                          <button onClick={ () => handleDelete(item.id)}>Excluir</button>
-                    </div>
-                 </li>
-                )
-            })}
-         </ul>
-    </div>
+                                <div>
+                                    <Link to={`/filmes/${movie.id}`}>Ver detalhes</Link>
+                                    <button onClick={handleDeleteOnclick(movie.id)}>Excluir</button>
+                                </div>
+                            </li>
+                        )
+                    )}
+                </ul>
+            ) : (
+                <span>Você não possui nenhum filme salvo!</span>
+            )}
+        </div>
     )
 }
 
